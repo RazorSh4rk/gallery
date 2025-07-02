@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gallery</title>
+    <style>
+        body {
+            background-color: #{{index .Config.Colors 3}};
+            color: #{{index .Config.Colors 0}};
+        }
+
+        .controls {
+            position: sticky;
+            top: 25px;
+            left: 90%;
+            width: 90px;
+            border-radius: 15px;
+            background-color: #{{index .Config.Colors 2}};
+            padding: 10px;
+        }
+
+        .control-btn {
+            font-size: large;
+            padding: 15px;
+            background-color: #{{index .Config.Colors 1}};
+            background: none;
+            border: 1px solid #{{index .Config.Colors 4}};
+            border-radius: 15%;
+        }
+
+        .gallery {
+            display: flex;
+            flex-direction: column;
+            padding: 5px;
+        }
+
+        .section {
+            display: grid;
+            grid-template-columns: auto;
+            grid-template-rows: 15% auto;
+        }
+
+        .image {
+            width: var(--image-width, {{.Config.MinWidth}}px);
+            border: 1px solid #{{index .Config.Colors 2}};
+            border-radius: 15%;
+            margin: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="controls" id="controls">
+        <button class="control-btn" onclick="grow()">+</button>
+        <button class="control-btn" onclick="shrink()">-</button>
+    </div>
+    <div class="gallery">
+        <div>
+            <div class="section">
+                <p>...</p>
+                <div class="pictures">
+                    {{range .Config.Images}}
+                    <img src="http://{{.}}" class="image" onclick="imClicked(this)" />
+                    {{end}}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let imWidth = {{.Config.MinWidth}}
+        const scaleStep = {{.Config.ScaleStep}}
+        const minWidth = {{.Config.MinWidth}}
+
+        const grow = () => {
+            document.documentElement.style.setProperty('--image-width', imWidth + scaleStep + "px")
+            imWidth += scaleStep
+        }
+
+        const shrink = () => {
+            let newW = imWidth
+            if ((imWidth - scaleStep) > minWidth)
+                newW = imWidth - scaleStep
+
+            document.documentElement.style.setProperty('--image-width', newW + "px")
+            imWidth = newW
+        }
+
+        const controls = document.getElementById("controls");
+        controls.addEventListener("wheel", event => {
+            event.preventDefault()
+            if (event.deltaY < 0) {
+                grow();
+            } else {
+                shrink();
+            }
+        })
+
+        const imClicked = (target) => {
+            navigator.clipboard.writeText(target.src)
+        }
+    </script>
+</body>
+
+</html>
